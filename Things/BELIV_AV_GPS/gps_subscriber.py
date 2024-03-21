@@ -8,6 +8,7 @@ import json
 
 
 class GNSS_Subscriber(Node):
+	
 	def __init__(self):
 		super().__init__('GNSS_Subscriber')
 		self.subscription = self.create_subscription(NavSatFix, '/oxts/fix', self.rosbag_to_gnss, 10)
@@ -31,6 +32,8 @@ class GNSS_Subscriber(Node):
 		self.myMQTTClient.configureDrainingFrequency(2)
 		self.myMQTTClient.configureConnectDisconnectTimeout(10)
 		self.myMQTTClient.configureMQTTOperationTimeout(15)
+
+		self.myMQTTClient.connect()
 		
 
 	def rosbag_to_gnss(self, msg):
@@ -43,6 +46,7 @@ class GNSS_Subscriber(Node):
             }
 			self.get_logger().info("I heard: %s" %devicePayload)
 			self.myMQTTClient.publish(self.topic, json.dumps(devicePayload), 1)
+			self.previous_timestamp = msg.header.stamp.sec
 
 
 
